@@ -1,0 +1,363 @@
+{
+    "info": {
+      "_postman_id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+      "name": "Microservices Films & Séries TV",
+      "description": "Collection pour tester l'API de microservices films et séries TV",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "REST API",
+        "item": [
+          {
+            "name": "Films",
+            "item": [
+              {
+                "name": "Obtenir tous les films",
+                "request": {
+                  "method": "GET",
+                  "url": {
+                    "raw": "http://localhost:3000/movies",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["movies"]
+                  }
+                }
+              },
+              {
+                "name": "Obtenir un film par ID",
+                "request": {
+                  "method": "GET",
+                  "url": {
+                    "raw": "http://localhost:3000/movies/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["movies", "1"]
+                  }
+                }
+              },
+              {
+                "name": "Créer un film",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"id\": \"3\",\n  \"title\": \"Nouveau Film\",\n  \"description\": \"Description du nouveau film\"\n}"
+                  },
+                  "url": {
+                    "raw": "http://localhost:3000/movies",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["movies"]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "Séries TV",
+            "item": [
+              {
+                "name": "Obtenir toutes les séries TV",
+                "request": {
+                  "method": "GET",
+                  "url": {
+                    "raw": "http://localhost:3000/tvshows",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["tvshows"]
+                  }
+                }
+              },
+              {
+                "name": "Obtenir une série TV par ID",
+                "request": {
+                  "method": "GET",
+                  "url": {
+                    "raw": "http://localhost:3000/tvshows/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["tvshows", "1"]
+                  }
+                }
+              },
+              {
+                "name": "Créer une série TV",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"id\": \"3\",\n  \"title\": \"Nouvelle Série TV\",\n  \"description\": \"Description de la nouvelle série TV\"\n}"
+                  },
+                  "url": {
+                    "raw": "http://localhost:3000/tvshows",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["tvshows"]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "GraphQL API",
+        "item": [
+          {
+            "name": "Films",
+            "item": [
+              {
+                "name": "Obtenir tous les films",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"query\": \"{ movies { id title description } }\"\n}"
+                  },
+                  "url": {
+                    "raw": "http://localhost:3000/graphql",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["graphql"]
+                  }
+                }
+              },
+              {
+                "name": "Obtenir un film par ID",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"query\": \"{ movie(id: \\\"1\\\") { id title description } }\"\n}"
+                  },
+                  "url": {
+                    "raw": "http://localhost:3000/graphql",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["graphql"]
+                  }
+                }
+              },
+              {
+                "name": "Créer un film",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"query\": \"mutation { createMovie(input: { id: \\\"4\\\", title: \\\"Film via GraphQL\\\", description: \\\"Film créé via GraphQL\\\" }) { id title description } }\"\n}"
+                  },
+                  "url": {
+                    "raw": "http://localhost:3000/graphql",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["graphql"]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "Séries TV",
+            "item": [
+              {
+                "name": "Obtenir toutes les séries TV",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"query\": \"{ tvShows { id title description } }\"\n}"
+                  },
+                  "url": {
+                    "raw": "http://localhost:3000/graphql",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["graphql"]
+                  }
+                }
+              },
+              {
+                "name": "Obtenir une série TV par ID",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"query\": \"{ tvShow(id: \\\"1\\\") { id title description } }\"\n}"
+                  },
+                  "url": {
+                    "raw": "http://localhost:3000/graphql",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["graphql"]
+                  }
+                }
+              },
+              {
+                "name": "Créer une série TV",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"query\": \"mutation { createTVShow(input: { id: \\\"4\\\", title: \\\"Série TV via GraphQL\\\", description: \\\"Série TV créée via GraphQL\\\" }) { id title description } }\"\n}"
+                  },
+                  "url": {
+                    "raw": "http://localhost:3000/graphql",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "3000",
+                    "path": ["graphql"]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Flux de travail complet",
+        "item": [
+          {
+            "name": "1. Créer un film via REST",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"5\",\n  \"title\": \"Film du flux de travail\",\n  \"description\": \"Film créé dans le cadre du flux de travail de test\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:3000/movies",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["movies"]
+              }
+            }
+          },
+          {
+            "name": "2. Vérifier le film créé via GraphQL",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"query\": \"{ movie(id: \\\"5\\\") { id title description } }\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:3000/graphql",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["graphql"]
+              }
+            }
+          },
+          {
+            "name": "3. Créer une série TV via GraphQL",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"query\": \"mutation { createTVShow(input: { id: \\\"5\\\", title: \\\"Série TV du flux de travail\\\", description: \\\"Série TV créée dans le cadre du flux de travail de test\\\" }) { id title description } }\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:3000/graphql",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["graphql"]
+              }
+            }
+          },
+          {
+            "name": "4. Vérifier la série TV créée via REST",
+            "request": {
+              "method": "GET",
+              "url": {
+                "raw": "http://localhost:3000/tvshows/5",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["tvshows", "5"]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }

@@ -1,0 +1,46 @@
+# Dépendances
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Environnement
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dossiers et fichiers spécifiques à l'OS
+.DS_Store
+Thumbs.db
+.directory
+
+# Dossiers de build
+/dist
+/build
+/out
+
+# Fichiers de configuration IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Fichiers de données Kafka
+kafka-logs/
+zookeeper-data/
+
+# Données temporaires
+/tmp
+.tmp
+temp/ 
