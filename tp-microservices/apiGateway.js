@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
+const path = require('path');
 const { sendMessage } = require('./kafka-config');
 
 // Charger les fichiers proto pour les films et les séries TV
@@ -24,6 +25,9 @@ const app = express();
 // Middleware pour parser le corps des requêtes
 app.use(bodyParser.json());
 app.use(cors());
+
+// Servir les fichiers statiques
+app.use(express.static(path.join(__dirname, 'public')));
 
 const movieProtoDefinition = protoLoader.loadSync(movieProtoPath, {
     keepCase: true,
@@ -179,8 +183,15 @@ app.post('/tvshows', async (req, res) => {
     }
 });
 
+// Route racine pour servir l'interface utilisateur
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Démarrer l'application Express
 const port = 3000;
 app.listen(port, () => {
     console.log(`API Gateway en cours d'exécution sur le port ${port}`);
+    console.log(`Interface utilisateur accessible à l'adresse http://localhost:${port}`);
+    console.log(`API GraphQL accessible à l'adresse http://localhost:${port}/graphql`);
 }); 

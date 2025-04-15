@@ -1,17 +1,19 @@
 # Architecture de Microservices avec gRPC, REST, GraphQL et Kafka
 
-Ce projet implémente une architecture de microservices pour gérer des données de films et de séries TV, en utilisant gRPC pour la communication inter-services, et en exposant des API REST et GraphQL via un API Gateway. Kafka est utilisé pour la communication asynchrone entre les services.
+Ce projet implémente une architecture de microservices pour gérer des données de films et de séries TV, en utilisant gRPC pour la communication inter-services, et en exposant des API REST et GraphQL via un API Gateway. Kafka est utilisé pour la communication asynchrone entre les services. Les données sont stockées de manière persistante avec LevelDB.
 
 ## Architecture
 
 L'architecture se compose des éléments suivants :
 
-1. **Microservice de Films** : Gère les données des films via gRPC
-2. **Microservice de Séries TV** : Gère les données des séries TV via gRPC
+1. **Microservice de Films** : Gère les données des films via gRPC et utilise LevelDB pour le stockage
+2. **Microservice de Séries TV** : Gère les données des séries TV via gRPC et utilise LevelDB pour le stockage
 3. **API Gateway** : Point d'entrée unique exposant :
    - API REST pour les films et séries TV
    - API GraphQL pour des requêtes plus flexibles
 4. **Kafka** : Permet la communication événementielle entre les services
+5. **Interface Utilisateur** : Une interface web interactive pour interagir avec les services
+6. **LevelDB** : Base de données clé-valeur légère pour le stockage persistant des données
 
 ## Prérequis
 
@@ -35,13 +37,19 @@ L'architecture se compose des éléments suivants :
 
 ## Démarrage des services
 
-Ouvrez trois terminaux différents et exécutez chaque service dans l'ordre suivant :
+Vous pouvez démarrer tous les services en une seule commande avec :
+
+```bash
+npm run start:all
+```
+
+Ou démarrer chaque service individuellement dans différents terminaux :
 
 ### Terminal 1 - Microservice de Films
 
 ```bash
 cd tp-microservices
-node movieMicroservice.js
+npm run start:movie
 ```
 
 Vous devriez voir : "Microservice de films en cours d'exécution sur le port 50051"
@@ -50,7 +58,7 @@ Vous devriez voir : "Microservice de films en cours d'exécution sur le port 500
 
 ```bash
 cd tp-microservices
-node tvShowMicroservice.js
+npm run start:tvshow
 ```
 
 Vous devriez voir : "Microservice de séries TV en cours d'exécution sur le port 50052"
@@ -59,18 +67,42 @@ Vous devriez voir : "Microservice de séries TV en cours d'exécution sur le por
 
 ```bash
 cd tp-microservices
-node apiGateway.js
+npm run start:api
 ```
 
 Vous devriez voir : "API Gateway en cours d'exécution sur le port 3000"
 
-## Vérification du fonctionnement
+## Accès à l'application
 
-Pour tester que tout fonctionne correctement, ouvrez votre navigateur ou utiliser curl :
+Une fois tous les services démarrés, vous pouvez accéder à :
 
-- Pour les films via REST : http://localhost:3000/movies
-- Pour les séries TV via REST : http://localhost:3000/tvshows
-- Pour l'interface GraphQL : http://localhost:3000/graphql
+- **Interface utilisateur** : http://localhost:3000
+- **API REST** : http://localhost:3000/movies et http://localhost:3000/tvshows
+- **API GraphQL** : http://localhost:3000/graphql
+
+## Stockage des données
+
+Les données sont stockées de manière persistante à l'aide de LevelDB, ce qui offre plusieurs avantages :
+
+- **Persistance** : Les données sont conservées même après un redémarrage des services
+- **Performance** : LevelDB est une base de données clé-valeur légère et rapide
+- **Simplicité** : Pas besoin d'installer un serveur de base de données séparé
+
+Chaque microservice dispose de sa propre base de données LevelDB située dans le dossier `data/` :
+
+- Films : `data/movies/`
+- Séries TV : `data/tvshows/`
+
+## Interface Utilisateur
+
+L'interface utilisateur web offre les fonctionnalités suivantes :
+
+- Visualisation des films et séries TV
+- Ajout de nouveaux films et séries TV
+- Choix entre l'API REST et GraphQL pour chaque opération
+- Journal d'événements pour suivre les activités
+
+Cette interface permet de démontrer visuellement comment les différentes parties de l'architecture communiquent entre elles.
 
 ## Utilisation des API
 
@@ -219,10 +251,10 @@ L'API GraphQL est accessible à l'adresse : `http://localhost:3000/graphql`
   }
   ```
 
-## Intégration avec une base de données
+## Extension du projet
 
-Pour connecter ce projet à une base de données réelle :
+Pour étendre ce projet avec d'autres fonctionnalités ou bases de données :
 
-1. Installez les dépendances appropriées pour votre base de données (ex: `mongoose` pour MongoDB)
-2. Modifiez les microservices pour utiliser la base de données au lieu des tableaux en mémoire
-3. Adaptez les modèles et requêtes selon votre schéma de base de données
+1. **Utiliser une autre base de données** : Remplacez LevelDB par MongoDB, PostgreSQL ou toute autre base de données en modifiant les modules dans `db/`
+2. **Ajouter d'autres microservices** : Créez de nouveaux services en suivant la même structure
+3. **Améliorer l'interface utilisateur** : Enrichissez l'interface web avec plus de fonctionnalités interactives

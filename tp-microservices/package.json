@@ -1,4 +1,14 @@
 {
+  "name": "tp-microservices",
+  "version": "1.0.0",
+  "description": "Architecture de microservices avec gRPC, REST, GraphQL et Kafka",
+  "main": "apiGateway.js",
+  "scripts": {
+    "start:api": "node apiGateway.js",
+    "start:movie": "node movieMicroservice.js",
+    "start:tvshow": "node tvShowMicroservice.js",
+    "start:all": "concurrently \"npm run start:movie\" \"npm run start:tvshow\" \"npm run start:api\""
+  },
   "dependencies": {
     "@apollo/server": "^4.12.0",
     "@grpc/grpc-js": "^1.13.3",
@@ -6,6 +16,10 @@
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "kafkajs": "^2.2.4"
+    "kafkajs": "^2.2.4",
+    "level": "^8.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

@@ -2,6 +2,23 @@
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const { sendMessage, createConsumer } = require('./kafka-config');
+const movieDb = require('./db/movie-db');
+const fs = require('fs');
+const path = require('path');
+
+// Créer les répertoires nécessaires pour les bases de données
+const dataDir = path.join(__dirname, 'data');
+const moviesDir = path.join(dataDir, 'movies');
+
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir);
+    console.log('Répertoire data créé');
+}
+
+if (!fs.existsSync(moviesDir)) {
+    fs.mkdirSync(moviesDir);
+    console.log('Répertoire data/movies créé');
+}
 
 // Charger le fichier movie.proto
 const movieProtoPath = 'movie.proto';
@@ -14,71 +31,85 @@ const movieProtoDefinition = protoLoader.loadSync(movieProtoPath, {
 });
 const movieProto = grpc.loadPackageDefinition(movieProtoDefinition).movie;
 
-// Données de démonstration pour les films
-const moviesDB = [
-    {
-        id: '1',
-        title: 'Exemple de film 1',
-        description: 'Ceci est le premier exemple de film.',
-    },
-    {
-        id: '2',
-        title: 'Exemple de film 2',
-        description: 'Ceci est le deuxième exemple de film.',
-    },
-];
-
 // Topic Kafka pour les films
 const MOVIE_TOPIC = 'movies_topic';
 
 // Implémenter le service movie
 const movieService = {
-    getMovie: (call, callback) => {
-        const { movie_id } = call.request;
-        // Récupérer les détails du film à partir de la base de données
-        const movie = moviesDB.find(m => m.id === movie_id) || {
-            id: movie_id,
-            title: 'Film non trouvé',
-            description: 'Aucun film avec cet ID n\'a été trouvé.',
-        };
-        
-        callback(null, { movie });
-    },
-    searchMovies: (call, callback) => {
-        const { query } = call.request;
-        
-        // Si une requête est fournie, filtrer les films en fonction de celle-ci
-        let movies = moviesDB;
-        if (query) {
-            movies = moviesDB.filter(m => 
-                m.title.toLowerCase().includes(query.toLowerCase()) || 
-                m.description.toLowerCase().includes(query.toLowerCase())
-            );
+    getMovie: async (call, callback) => {
+        try {
+            const { movie_id } = call.request;
+            // Récupérer les détails du film à partir de la base de données
+            const movie = await movieDb.getMovie(movie_id);
+            
+            if (movie) {
+                callback(null, { movie });
+            } else {
+                // Si le film n'est pas trouvé, retourner un objet avec des valeurs par défaut
+                callback(null, { 
+                    movie: {
+                        id: movie_id,
+                        title: 'Film non trouvé',
+                        description: 'Aucun film avec cet ID n\'a été trouvé.',
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération du film:', error);
+            callback({
+                code: grpc.status.INTERNAL,
+                message: `Erreur serveur: ${error.message}`
+            });
         }
-        
-        callback(null, { movies });
     },
+    
+    searchMovies: async (call, callback) => {
+        try {
+            const { query } = call.request;
+            
+            // Rechercher les films en fonction de la requête
+            const movies = await movieDb.searchMovies(query);
+            
+            callback(null, { movies });
+        } catch (error) {
+            console.error('Erreur lors de la recherche de films:', error);
+            callback({
+                code: grpc.status.INTERNAL,
+                message: `Erreur serveur: ${error.message}`
+            });
+        }
+    },
+    
     // Ajouter une méthode pour créer un film
-    createMovie: (call, callback) => {
-        const newMovie = call.request.movie;
-        
-        // Vérifier si l'ID existe déjà
-        const existingMovie = moviesDB.find(m => m.id === newMovie.id);
-        if (existingMovie) {
-            callback(new Error('Un film avec cet ID existe déjà'), null);
-            return;
+    createMovie: async (call, callback) => {
+        try {
+            const newMovie = call.request.movie;
+            
+            // Créer le nouveau film dans la base de données
+            const createdMovie = await movieDb.createMovie(newMovie);
+            
+            // Envoyer un message Kafka pour informer les autres services
+            sendMessage(MOVIE_TOPIC, {
+                type: 'MOVIE_CREATED',
+                data: createdMovie
+            });
+            
+            callback(null, { movie: createdMovie });
+        } catch (error) {
+            console.error('Erreur lors de la création du film:', error);
+            
+            if (error.message.includes('existe déjà')) {
+                callback({
+                    code: grpc.status.ALREADY_EXISTS,
+                    message: error.message
+                });
+            } else {
+                callback({
+                    code: grpc.status.INTERNAL,
+                    message: `Erreur serveur: ${error.message}`
+                });
+            }
         }
-        
-        // Ajouter le nouveau film à la base de données
-        moviesDB.push(newMovie);
-        
-        // Envoyer un message Kafka pour informer les autres services
-        sendMessage(MOVIE_TOPIC, {
-            type: 'MOVIE_CREATED',
-            data: newMovie
-        });
-        
-        callback(null, { movie: newMovie });
     }
 };
 
@@ -100,19 +131,33 @@ console.log(`Microservice de films en cours d'exécution sur le port ${port}`);
 // Configurer le consommateur Kafka pour recevoir les messages des autres services
 const startKafkaConsumer = async () => {
     try {
-        const consumer = await createConsumer('movie-service-group', MOVIE_TOPIC, (message) => {
+        const consumer = await createConsumer('movie-service-group', MOVIE_TOPIC, async (message) => {
             console.log('Traitement du message Kafka:', message);
             
             // Traiter les différents types de messages
             switch (message.type) {
                 case 'MOVIE_UPDATE_REQUEST':
-                    // Logique pour mettre à jour un film
-                    console.log('Demande de mise à jour de film reçue:', message.data);
+                    try {
+                        // Logique pour mettre à jour un film
+                        const { id, ...movieData } = message.data;
+                        const updatedMovie = await movieDb.updateMovie(id, movieData);
+                        console.log('Film mis à jour:', updatedMovie);
+                    } catch (error) {
+                        console.error('Erreur lors de la mise à jour du film:', error);
+                    }
                     break;
+                    
                 case 'MOVIE_DELETE_REQUEST':
-                    // Logique pour supprimer un film
-                    console.log('Demande de suppression de film reçue:', message.data);
+                    try {
+                        // Logique pour supprimer un film
+                        const { id } = message.data;
+                        await movieDb.deleteMovie(id);
+                        console.log('Film supprimé avec succès:', id);
+                    } catch (error) {
+                        console.error('Erreur lors de la suppression du film:', error);
+                    }
                     break;
+                    
                 default:
                     console.log('Type de message non pris en charge:', message.type);
             }
